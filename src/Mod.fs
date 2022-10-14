@@ -4,7 +4,6 @@ open XCommander.Regex
 open XCommander.String
 
 type Mod = {
-    Enabled : bool
     Path : string
     Filename : string
     Name : string
@@ -16,10 +15,7 @@ type Mod = {
     Tags : string option
     ContentImage : string option }
 
-let isEnabled (m : Mod) = m.Enabled
-let isDisabled (m : Mod) = not m.Enabled
-
-let toMod (modFilePath : string)  =
+let toMod modFilePath  =
     let expression = @"\r?\npublishedFileId=(?<publishedFileId>[0-9]*)|" +
                      @"\r?\nTitle=(?<title>.*)|" +
                      @"\r?\ntags=(?<tags>.*)|" +
@@ -27,8 +23,7 @@ let toMod (modFilePath : string)  =
                      @"\r?\nRequiresXPACK=(?<requiresXPACK>.*)|" +
                      @"\r?\nDescription=(?<description>.*(?:\r?\n(?!tags=|contentImage=|Title=|publishedFileId=|RequiresXPACK=).*)*)"
     let matches = modFilePath |> File.ReadAllText |> regexMatches expression
-    { Enabled         = false
-      Path            = modFilePath
+    { Path            = modFilePath
       Filename        = Path.GetFileName modFilePath
       Name            = Path.GetFileNameWithoutExtension modFilePath
       PublishedFileId = matches |> getRegexMatchCapturedSubstring "publishedFileId" |> trim
@@ -50,3 +45,5 @@ let toString modification =
         modification.Tags 
         modification.ContentImage 
         modification.Category
+
+let getTitle m = m.Title

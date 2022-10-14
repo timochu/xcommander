@@ -22,11 +22,17 @@ let enabledMods =
 let mods = 
     Paths.WorkshopContentFolder
     |> fun dir -> Directory.EnumerateFiles(dir, "*.XComMod", SearchOption.AllDirectories)
-    |> Seq.map (toMod >> (fun x -> x.Name, { x with Enabled = enabledMods |> Array.contains x.Name}))
+    |> Seq.map toMod
+    |> Seq.map (fun x -> x.Name, x)
     |> Map.ofSeq
 
+let isEnabled m = enabledMods |> Array.contains m.Name
+let isDisabled m = isEnabled m |> not
+
+
 let disableMod m =
-    Paths.ModOptionsFile |> File.ReadAllLines
+    Paths.ModOptionsFile
+    |> File.ReadAllLines
     |> fun lines -> lines |> Array.tryFindIndex (startsWith $"ActiveMods={m.Name}"), lines
     |> function
     | Some index, lines ->
@@ -37,21 +43,16 @@ let disableMod m =
 let enableMod m =
     match mods |> Map.tryFind m.Name with
     | None -> Error $"No such mod as {m.Title} is downloaded."
-    | Some m when m.Enabled -> Error $"{m.Title} is already enabled."
+    | Some m when isEnabled m -> Error $"{m.Title} is already enabled."
     | _ -> 
-        Paths.ModOptionsFile |> File.ReadAllLines
-        |> fun lines -> (lines |> Array.tryFindIndexBack (startsWith "ActiveMods=") |> function | Some index -> index + 1 | None -> 1), lines
-        |> fun (index, lines) -> 
-            lines 
-            |>Array.insertAt (index) $"ActiveMods={m}"
+        Paths.ModOptionsFile 
+        |> File.ReadAllLines
+        |> fun lines -> lines, lines |> Array.tryFindIndexBack (startsWith "ActiveMods=") |> function | Some i -> i + 1 | None -> 1 
+        |> fun (lines, insertIndex) -> 
+            lines
+            |> Array.insertAt insertIndex $"ActiveMods={m.Name}"
             |> File.writeAllLines Paths.ModOptionsFile
-            Ok $"{m} activated"
-
-let longestTitleLength  = mods.Values |> Seq.maxBy (fun x -> x.Title.Length) |> fun x -> x.Title.Length
-
-let printMod key value = 
-    let isEnabledToBullet (m : Mod) = if m.Enabled then "•" else " "
-    printfn " %s %-*s     (%s)" (isEnabledToBullet value) longestTitleLength value.Title key
+            Ok $"{m.Title} activated"
 
 let printResult r = 
     match r with 
@@ -62,7 +63,7 @@ let printResult r =
 Console.OutputEncoding <- Text.Encoding.UTF8
 printfn "XCommander v0.1"
 match GetCommandLineArgs() |> Array.tryItem 1, GetCommandLineArgs() |> Array.tryItem 2 with
-| None, _ -> printfn "Valid arguments are: \n   activate [{name}|*] \n   disable [{name}|*] \n   list [all|enabled|disabled|downloaded]"
+| None, _ -> printfn "Valid arguments are: \n   activate [<name> | *] \n   disable [<name> | *] \n   list [all | enabled | disabled | downloaded]"
 | Some "version", _ -> printfn "version 1.0"
 
 // Enable arguments
@@ -102,15 +103,18 @@ match GetCommandLineArgs() |> Array.tryItem 1, GetCommandLineArgs() |> Array.try
     printfn "Enabled mods"
     mods.Values 
     |> Seq.where isEnabled
-    |> Seq.iter (fun m -> printfn " • %s" m.Title)
+    |> Seq.map getTitle
+    |> Seq.iter (printfn " • %s")
 | Some "list", Some "disabled" ->
     printfn "Disabled mods"
     mods.Values 
     |> Seq.where isDisabled
-    |> Seq.iter (fun m -> printfn " • %s" m.Title)
+    |> Seq.map getTitle
+    |> Seq.iter (printfn " • %s")
 | Some "list", Some "all" -> 
     printfn "Mods"
-    mods |> Map.iter printMod
+    let longestTitleLength  = mods |> Map.values |> Seq.map (getTitle >> String.length) |> Seq.max
+    mods |> Map.iter (fun k m -> printfn " %s %-*s     (%s)" (if isEnabled m then "•" else " ") longestTitleLength m.Title k)
 
 // Argument missing
 | _ -> printfn "No such command exists"
