@@ -1,4 +1,4 @@
-﻿open System
+open System
 open System.IO
 open XCommander
 open XCommander.Path
@@ -54,11 +54,7 @@ let enableMod m =
             |> File.writeAllLines Paths.ModOptionsFile
             Ok $"{m.Title} activated"
 
-let printResult r = 
-    match r with 
-    | Ok msg -> msg 
-    | Error msg -> msg
-    |> printfn "   %s"
+let printResult = function Ok msg | Error msg -> msg |> printfn "   %s"
 
 Console.OutputEncoding <- Text.Encoding.UTF8
 printfn "XCommander v0.1"
