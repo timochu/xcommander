@@ -1,4 +1,4 @@
-open System
+﻿open System
 open System.IO
 open XCommander
 open XCommander.Path
@@ -19,16 +19,15 @@ let enabledMods =
     |> Array.where (startsWith "ActiveMods=")
     |> Array.map (replace "ActiveMods=" String.Empty)
 
+let isEnabled m = enabledMods |> Array.contains m.Name
+let isDisabled m = isEnabled m |> not
+
 let mods = 
     Paths.WorkshopContentFolder
     |> fun dir -> Directory.EnumerateFiles(dir, "*.XComMod", SearchOption.AllDirectories)
     |> Seq.map toMod
     |> Seq.map (fun x -> x.Name, x)
     |> Map.ofSeq
-
-let isEnabled m = enabledMods |> Array.contains m.Name
-let isDisabled m = isEnabled m |> not
-
 
 let disableMod m =
     Paths.ModOptionsFile
