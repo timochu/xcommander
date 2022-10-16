@@ -54,7 +54,7 @@ Console.OutputEncoding <- Text.Encoding.UTF8
 printfn "XCommander v0.1"
 match GetCommandLineArgs() |> Array.tryItem 1, GetCommandLineArgs() |> Array.tryItem 2 with
 | None, _ -> printfn "Valid arguments are: \n   activate [<name> | *] \n   disable [<name> | *] \n   list [all | enabled | disabled | downloaded]"
-| Some "version", _ -> printfn "version 1.0"
+| Some "version", _ -> printfn "version 0.1"
 
 // Enable arguments
 | Some "enable", Some "*" -> 
