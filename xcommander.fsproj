@@ -4,10 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="src/String.fs" />
-    <Compile Include="src/File.fs" />
-    <Compile Include="src/Path.fs" />
-    <Compile Include="src/Regex.fs" />
+    <Compile Include="src/Utility.fs" />
+    <Compile Include="src/Configuration.fs" />
     <Compile Include="src/Mod.fs" />
     <Compile Include="src/Program.fs" />
     <None Include="settings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

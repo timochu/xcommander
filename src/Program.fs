@@ -1,17 +1,13 @@
 ﻿open System
 open System.IO
-open XCommander
-open XCommander.Path
-open XCommander.String
+open XCommander.Configuration
+open XCommander.Utility.String
+open XCommander.Utility.Process
+open XCommander.Utility.File
+open XCommander.Utility.Result
 open XCommander.Mod
-open Microsoft.Extensions.Configuration
+
 open type Environment
-
-let configuration = (new ConfigurationBuilder()).AddJsonFile("settings.json").AddCommandLine(GetCommandLineArgs()).Build();
-
-module Paths =
-    let ModOptionsFile = GetFolderPath SpecialFolder.MyDocuments |> join @"\My Games\XCOM2 War of the Chosen\XComGame\Config\XComModOptions.ini"
-    let WorkshopContentFolder = configuration.Item "SteamPath" |> join @"steamapps\workshop\content\268500"
 
 let enabledMods =
     Paths.ModOptionsFile
@@ -25,7 +21,7 @@ let isDisabled m = isEnabled m |> not
 let mods = 
     Paths.WorkshopContentFolder
     |> fun dir -> Directory.EnumerateFiles(dir, "*.XComMod", SearchOption.AllDirectories)
-    |> Seq.map toMod
+    |> Seq.map loadMod
     |> Seq.map (fun x -> x.Name, x)
     |> Map.ofSeq
 
@@ -35,7 +31,7 @@ let disableMod m =
     |> fun lines -> lines |> Array.tryFindIndex (startsWith $"ActiveMods={m.Name}"), lines
     |> function
     | Some index, lines ->
-        Array.removeAt index lines |> File.writeAllLines Paths.ModOptionsFile
+        Array.removeAt index lines |> writeAllLines Paths.ModOptionsFile
         Ok $"{m.Title} disabled."
     | _ -> Error $"{m.Title} is already disabled."
 
@@ -50,10 +46,9 @@ let enableMod m =
         |> fun (lines, insertIndex) -> 
             lines
             |> Array.insertAt insertIndex $"ActiveMods={m.Name}"
-            |> File.writeAllLines Paths.ModOptionsFile
+            |> writeAllLines Paths.ModOptionsFile
             Ok $"{m.Title} activated"
 
-let printResult = function Ok msg | Error msg -> msg |> printfn "   %s"
 
 Console.OutputEncoding <- Text.Encoding.UTF8
 printfn "XCommander v0.1"
@@ -67,7 +62,7 @@ match GetCommandLineArgs() |> Array.tryItem 1, GetCommandLineArgs() |> Array.try
     |> Map.values 
     |> Seq.where isDisabled 
     |> Seq.map enableMod
-    |> Seq.iter printResult
+    |> Seq.iter print
 
 | Some "enable", Some name -> 
     name
@@ -75,7 +70,7 @@ match GetCommandLineArgs() |> Array.tryItem 1, GetCommandLineArgs() |> Array.try
     |> function
         | Some name -> enableMod name
         | None -> Error $"No such mod as {name} is downloaded."
-    |> printResult
+    |> print
 
 // Disable arguments
 | Some "disable", Some "*" -> 
@@ -83,33 +78,35 @@ match GetCommandLineArgs() |> Array.tryItem 1, GetCommandLineArgs() |> Array.try
     |> Map.values 
     |> Seq.where isEnabled
     |> Seq.map disableMod
-    |> Seq.iter printResult
+    |> Seq.iter print
 | Some "disable", Some name -> 
     name
     |> mods.TryFind
     |> function
         | Some name -> disableMod name
         | None -> Error $"No such mod as {name} is downloaded."
-    |> printResult
+    |> print
 
 // List arguments
 | Some "list", None -> printfn "Valid list parameters are:\n   all\n   enabled\n   disabled\n   downloaded"
 | Some "list", Some "enabled" ->
-    printfn "Enabled mods"
+    printfn "Listing enabled mods..."
     mods.Values 
     |> Seq.where isEnabled
     |> Seq.map getTitle
     |> Seq.iter (printfn " • %s")
 | Some "list", Some "disabled" ->
-    printfn "Disabled mods"
+    printfn "Listing disabled mods..."
     mods.Values 
     |> Seq.where isDisabled
     |> Seq.map getTitle
     |> Seq.iter (printfn " • %s")
 | Some "list", Some "all" -> 
-    printfn "Mods"
+    printfn "Listing all mods..."
     let longestTitleLength  = mods |> Map.values |> Seq.map (getTitle >> String.length) |> Seq.max
     mods |> Map.iter (fun k m -> printfn " %s %-*s     (%s)" (if isEnabled m then "•" else " ") longestTitleLength m.Title k)
+
+| Some "run", _ -> run Paths.ExecutableFile Paths.WorkingDirectory (configuration.Item "LaunchArguments")
 
 // Argument missing
 | _ -> printfn "No such command exists"

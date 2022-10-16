@@ -1,3 +1,4 @@
 {
-    "SteamPath": "C:\\Games\\Steam"
+    "SteamPath": "C:\\Games\\Steam",
+    "LaunchArguments": "-review -noRedScreens -nostartupmovies"
 }

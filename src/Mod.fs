@@ -1,7 +1,7 @@
 module XCommander.Mod
 open System.IO
-open XCommander.Regex
-open XCommander.String
+open XCommander.Utility.Regex
+open XCommander.Utility.String
 
 type Mod = {
     Path : string
@@ -15,24 +15,24 @@ type Mod = {
     Tags : string option
     ContentImage : string option }
 
-let toMod modFilePath  =
+let loadMod path  =
     let expression = @"\r?\npublishedFileId=(?<publishedFileId>[0-9]*)|" +
                      @"\r?\nTitle=(?<title>.*)|" +
                      @"\r?\ntags=(?<tags>.*)|" +
                      @"\r?\ncontentImage=(?<contentImage>.*)|" +
                      @"\r?\nRequiresXPACK=(?<requiresXPACK>.*)|" +
                      @"\r?\nDescription=(?<description>.*(?:\r?\n(?!tags=|contentImage=|Title=|publishedFileId=|RequiresXPACK=).*)*)"
-    let matches = modFilePath |> File.ReadAllText |> regexMatches expression
-    { Path            = modFilePath
-      Filename        = Path.GetFileName modFilePath
-      Name            = Path.GetFileNameWithoutExtension modFilePath
-      PublishedFileId = matches |> getRegexMatchCapturedSubstring "publishedFileId" |> trim
-      Title           = matches |> getRegexMatchCapturedSubstring "title" |> trim
-      Description     = matches |> getRegexMatchCapturedSubstring "description" |> trim
-      Category        = matches |> getOptionalRegexMatchCapturedSubstring "category" |> Option.map trim
-      RequiresXPACK   = matches |> getOptionalRegexMatchCapturedSubstring "RequiresXPACK" |> Option.map (trim >> bool.Parse)
-      Tags            = matches |> getOptionalRegexMatchCapturedSubstring "tags" |> Option.map trim
-      ContentImage    = matches |> getOptionalRegexMatchCapturedSubstring "contentImage" |> Option.map trim }
+    let matches = path |> File.ReadAllText |> matches expression
+    { Path            = path
+      Filename        = Path.GetFileName path
+      Name            = Path.GetFileNameWithoutExtension path
+      PublishedFileId = matches |> getCapturedSubstring "publishedFileId" |> trim
+      Title           = matches |> getCapturedSubstring "title" |> trim
+      Description     = matches |> getCapturedSubstring "description" |> trim
+      Category        = matches |> tryGetCapturedSubstring "category" |> Option.map trim
+      RequiresXPACK   = matches |> tryGetCapturedSubstring "RequiresXPACK" |> Option.map (trim >> bool.Parse)
+      Tags            = matches |> tryGetCapturedSubstring "tags" |> Option.map trim
+      ContentImage    = matches |> tryGetCapturedSubstring "contentImage" |> Option.map trim }
       
 
 let toString modification =
