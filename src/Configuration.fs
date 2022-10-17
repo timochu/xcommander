@@ -2,6 +2,9 @@ module xcommander.Configuration
 open Microsoft.Extensions.Configuration
 open type System.Environment
 
+// Without settings UTF8 encoding, special symbols like • won't be displayed in terminal.
+System.Console.OutputEncoding <- System.Text.Encoding.UTF8
+
 [<CLIMutable>]
 type Configuration = {
     SteamPath : string

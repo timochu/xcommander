@@ -8,6 +8,7 @@
     <Compile Include="src/Utility.fs" />
     <Compile Include="src/Configuration.fs" />
     <Compile Include="src/Mod.fs" />
+    <Compile Include="src/Commands.fs" />
     <Compile Include="src/Program.fs" />
     <None Include="settings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Include="README.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
@@ -17,5 +18,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta4.22272.1" />
   </ItemGroup>
 </Project>
