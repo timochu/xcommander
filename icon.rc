@@ -1,3 +1,0 @@
-// compile icon.res by running Windows SDK tool rc.exe like so
-// > rc.exe icon.rc
-1 ICON "icon.ico"
