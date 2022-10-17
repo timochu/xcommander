@@ -105,7 +105,7 @@ match GetCommandLineArgs() |> Array.tryItem 1, GetCommandLineArgs() |> Array.try
     let longestTitleLength  = mods |> Map.values |> Seq.map (getTitle >> String.length) |> Seq.max
     mods |> Map.iter (fun k m -> printfn " %s %-*s     (%s)" (if isEnabled m then "•" else " ") longestTitleLength m.Title k)
 
-| Some "run", _ -> run Paths.ExecutableFile Paths.WorkingDirectory (configurationRoot.Item "LaunchArguments")
+| Some "run", _ -> run Paths.ExecutableFile Paths.WorkingDirectory config.LaunchArguments
 
 // Argument missing
 | _ -> printfn "No such command exists"
