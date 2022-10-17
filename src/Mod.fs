@@ -1,7 +1,7 @@
-module XCommander.Mod
+module xcommander.Mod
 open System.IO
-open XCommander.Utility.Regex
-open XCommander.Utility.String
+open xcommander.Utility.Regex
+open xcommander.Utility.String
 
 type Mod = {
     Path : string

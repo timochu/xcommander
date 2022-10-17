@@ -1,11 +1,11 @@
 ﻿open System
 open System.IO
-open XCommander.Configuration
-open XCommander.Utility.String
-open XCommander.Utility.Process
-open XCommander.Utility.File
-open XCommander.Utility.Result
-open XCommander.Mod
+open xcommander.Configuration
+open xcommander.Utility.String
+open xcommander.Utility.Process
+open xcommander.Utility.File
+open xcommander.Utility.Result
+open xcommander.Mod
 
 open type Environment
 
@@ -51,7 +51,6 @@ let enableMod m =
 
 
 Console.OutputEncoding <- Text.Encoding.UTF8
-printfn "XCommander v0.1"
 match GetCommandLineArgs() |> Array.tryItem 1, GetCommandLineArgs() |> Array.tryItem 2 with
 | None, _ -> printfn "Valid arguments are: \n   activate [<name> | *] \n   disable [<name> | *] \n   list [all | enabled | disabled | downloaded]"
 | Some "version", _ -> printfn "version 0.1"
@@ -106,7 +105,7 @@ match GetCommandLineArgs() |> Array.tryItem 1, GetCommandLineArgs() |> Array.try
     let longestTitleLength  = mods |> Map.values |> Seq.map (getTitle >> String.length) |> Seq.max
     mods |> Map.iter (fun k m -> printfn " %s %-*s     (%s)" (if isEnabled m then "•" else " ") longestTitleLength m.Title k)
 
-| Some "run", _ -> run Paths.ExecutableFile Paths.WorkingDirectory (configuration.Item "LaunchArguments")
+| Some "run", _ -> run Paths.ExecutableFile Paths.WorkingDirectory (configurationRoot.Item "LaunchArguments")
 
 // Argument missing
 | _ -> printfn "No such command exists"

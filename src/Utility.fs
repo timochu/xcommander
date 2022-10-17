@@ -1,4 +1,4 @@
-module XCommander.Utility
+module xcommander.Utility
 
 module String =
     let replace oldValue (newValue : string) (str : string) = str.Replace(oldValue, newValue)
