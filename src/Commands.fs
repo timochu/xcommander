@@ -2,6 +2,7 @@ module xcommander.Commands
 open Utility.Result
 open Utility.Process
 open Configuration
+open Utility.String
 
 let enableMod name =
     Mod.all
@@ -36,23 +37,23 @@ let disableAll () =
 let listAll (filter : string) =
     Mod.all 
     |> Map.values
-    |> Seq.where (fun m -> m.Title.Contains(filter, System.StringComparison.OrdinalIgnoreCase)) 
+    |> Seq.where (fun m -> contains filter m.Name)
     |> Seq.iter (fun m -> printfn " %s %s" (if Mod.isEnabled m then "•" else " ") m.Title)
 
 let listEnabled (filter : string) =
     Mod.all
     |> Map.values
     |> Seq.where Mod.isEnabled
-    |> Seq.where (fun m -> m.Title.Contains(filter, System.StringComparison.OrdinalIgnoreCase)) 
     |> Seq.map Mod.getTitle
+    |> Seq.where (contains filter)
     |> Seq.iter (printfn " • %s")
 
 let listDisabled (filter : string) = 
     Mod.all
     |> Map.values
     |> Seq.where Mod.isDisabled
-    |> Seq.where (fun m -> m.Title.Contains(filter, System.StringComparison.OrdinalIgnoreCase)) 
     |> Seq.map Mod.getTitle
+    |> Seq.where (contains filter)
     |> Seq.iter (printfn " • %s")
 
 let runXcom () =
