@@ -88,4 +88,4 @@ let enable m =
             lines
             |> Array.insertAt insertIndex $"ActiveMods={m.Name}"
             |> writeAllLines Paths.ModOptionsFile
-            Ok $"{m.Title} activated"
+            Ok $"{m.Title} enabled."
