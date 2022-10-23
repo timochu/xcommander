@@ -56,5 +56,6 @@ let listDisabled (filter : string) =
     |> Seq.where (contains filter)
     |> Seq.iter (printfn " • %s")
 
-let runXcom () =
-    run Paths.ExecutableFile Paths.WorkingDirectory config.LaunchArguments
+let runXcom launchArguments =
+    printfn "Launching XCOM 2 with arguments: %s\nExecutable used: %s" launchArguments Paths.ExecutableFile
+    run Paths.ExecutableFile Paths.WorkingDirectory launchArguments
