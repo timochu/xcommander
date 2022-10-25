@@ -2,7 +2,7 @@
 
 # xcommander
 
-Small XCOM 2 Mod Manager from command line.
+Small command line XCOM 2 Mod Manager.
 
 ```
 Usage:
