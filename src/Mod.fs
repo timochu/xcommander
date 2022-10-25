@@ -37,17 +37,6 @@ let loadMod path  =
       Tags            = matches |> tryGetCapturedSubstring "tags" |> Option.map trim
       ContentImage    = matches |> tryGetCapturedSubstring "contentImage" |> Option.map trim }
 
-let toString modification =
-    sprintf "Title: %s \nPath: %s \nPublishedFileId: %s \nDescription: %s \nRequiresXPACK: %A \nTags: %A \nContentImage: %A \nCategory: %A \n"
-        modification.Title 
-        modification.Path 
-        modification.PublishedFileId 
-        modification.Description 
-        modification.RequiresXPACK 
-        modification.Tags 
-        modification.ContentImage 
-        modification.Category
-
 let getTitle m = m.Title
 
 let enabled =
