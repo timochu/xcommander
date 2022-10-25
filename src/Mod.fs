@@ -48,7 +48,7 @@ let enabled =
 let isEnabled m = enabled |> Array.contains m.Name
 let isDisabled m = isEnabled m |> not
 
-let all = 
+let all =
     Paths.WorkshopContentFolder
     |> fun dir -> Directory.EnumerateFiles(dir, "*.XComMod", SearchOption.AllDirectories)
     |> Seq.map loadMod
@@ -69,11 +69,11 @@ let enable m =
     match all |> Map.tryFind m.Name with
     | None -> Error $"No such mod as {m.Title} is downloaded."
     | Some m when isEnabled m -> Error $"{m.Title} is already enabled."
-    | _ -> 
-        Paths.ModOptionsFile 
+    | _ ->
+        Paths.ModOptionsFile
         |> File.ReadAllLines
-        |> fun lines -> lines, lines |> Array.tryFindIndexBack (startsWith "ActiveMods=") |> function | Some i -> i + 1 | None -> 1 
-        |> fun (lines, insertIndex) -> 
+        |> fun lines -> lines, lines |> Array.tryFindIndexBack (startsWith "ActiveMods=") |> function | Some i -> i + 1 | None -> 1
+        |> fun (lines, insertIndex) ->
             lines
             |> Array.insertAt insertIndex $"ActiveMods={m.Name}"
             |> writeAllLines Paths.ModOptionsFile

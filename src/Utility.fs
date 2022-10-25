@@ -7,7 +7,7 @@ module String =
     let contains (value : string) (s : string) = s.Contains(value, System.StringComparison.InvariantCultureIgnoreCase)
 
 module Process =
-    let run filename workingDirectory arguments = 
+    let run filename workingDirectory arguments =
         let p = new System.Diagnostics.Process(
             StartInfo = new System.Diagnostics.ProcessStartInfo(
                 Arguments = arguments,

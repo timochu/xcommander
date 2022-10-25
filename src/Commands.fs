@@ -23,19 +23,19 @@ let disableMod name =
 let enableAll () =
     Mod.all
     |> Map.values
-    |> Seq.where Mod.isDisabled 
+    |> Seq.where Mod.isDisabled
     |> Seq.map Mod.enable
     |> Seq.iter print
 
 let disableAll () =
-    Mod.all 
-    |> Map.values 
+    Mod.all
+    |> Map.values
     |> Seq.where Mod.isEnabled
     |> Seq.map Mod.disable
     |> Seq.iter print
 
 let listAll (filter : string) =
-    Mod.all 
+    Mod.all
     |> Map.values
     |> Seq.where (fun m -> contains filter m.Name)
     |> Seq.iter (fun m -> printfn " %s %s" (if Mod.isEnabled m then "•" else " ") m.Title)
@@ -48,7 +48,7 @@ let listEnabled (filter : string) =
     |> Seq.where (contains filter)
     |> Seq.iter (printfn " • %s")
 
-let listDisabled (filter : string) = 
+let listDisabled (filter : string) =
     Mod.all
     |> Map.values
     |> Seq.where Mod.isDisabled
