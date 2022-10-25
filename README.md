@@ -1,13 +1,8 @@
-<!-- ![xcommander logo](https://raw.githubusercontent.com/timochu/xcommander/master/icon/icon.svg) -->
-
 <img align="right" width="100" height="100" src="https://raw.githubusercontent.com/timochu/xcommander/master/icon/icon.svg">
 
 # xcommander
 
 Small XCOM 2 Mod Manager from command line.
-
-
-
 
 ```
 Usage:
