@@ -37,8 +37,6 @@ let loadMod path  =
       Tags            = matches |> tryGetCapturedSubstring "tags" |> Option.map trim
       ContentImage    = matches |> tryGetCapturedSubstring "contentImage" |> Option.map trim }
 
-let getTitle { Title = title } = title
-
 let all =
     Paths.WorkshopContentFolder
     |> fun dir -> Directory.EnumerateFiles(dir, "*.XComMod", SearchOption.AllDirectories)
@@ -52,14 +50,8 @@ let enabled =
     |> Array.where (startsWith "ActiveMods=")
     |> Array.map (replace "ActiveMods=" String.Empty)
 
-let disabled =
-    all
-    |> Map.keys
-    |> Seq.except enabled
-    |> Array.ofSeq
-
 let isEnabled { Name = name } = enabled |> Array.contains name
-let isDisabled { Name = name } = disabled |> Array.contains name
+let isDisabled m = isEnabled m |> not
 
 let disable { Title = title ; Name = name } =
     Paths.ModOptionsFile
