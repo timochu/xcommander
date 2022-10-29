@@ -13,10 +13,10 @@ Options:
   -?, -h, --help  Show help and usage information
 
 Commands:
-  list             List all mods.
-  enabled          List enabled mods.
-  disabled         List disabled mods.
+  list <search>    List all mods. []
   run <arguments>  Launch XCOM 2. [default: -review -noRedScreens -nostartupmovies]
+  enable-all       Enables all disabled mods.
+  disable-all      Disables all enabled mod.
   enable <name>    Enables a specified mod.
   disable <name>   Disables a specified mod.
 ```
