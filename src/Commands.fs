@@ -4,6 +4,20 @@ open Utility.Process
 open Configuration
 open Utility.String
 
+let enableAllMods () =
+    Mod.all
+    |> Map.values
+    |> Seq.where Mod.isDisabled
+    |> Seq.map Mod.enable
+    |> Seq.iter print
+
+let disableAllMods () =
+    Mod.all
+    |> Map.values
+    |> Seq.where Mod.isEnabled
+    |> Seq.map Mod.disable
+    |> Seq.iter print
+
 let enableMod name =
     Mod.all
     |> Map.tryFind name
@@ -20,41 +34,15 @@ let disableMod name =
         | None -> Error $"No such mod as {name} is downloaded."
     |> print
 
-let enableAll () =
+let listMods filter enabledOnly disabledOnly =
     Mod.all
     |> Map.values
-    |> Seq.where Mod.isDisabled
-    |> Seq.map Mod.enable
-    |> Seq.iter print
-
-let disableAll () =
-    Mod.all
-    |> Map.values
-    |> Seq.where Mod.isEnabled
-    |> Seq.map Mod.disable
-    |> Seq.iter print
-
-let listAll (filter : string) =
-    Mod.all
-    |> Map.values
-    |> Seq.where (fun m -> contains filter m.Name)
+    |> Seq.where (match enabledOnly, disabledOnly with
+                  | true, _ -> Mod.isEnabled
+                  | _, true -> Mod.isDisabled
+                  | _ -> (fun _ -> true))
+    |> Seq.where (fun { Name = name } -> contains filter name)
     |> Seq.iter (fun m -> printfn " %s %s" (if Mod.isEnabled m then "•" else " ") m.Title)
-
-let listEnabled (filter : string) =
-    Mod.all
-    |> Map.values
-    |> Seq.where Mod.isEnabled
-    |> Seq.map Mod.getTitle
-    |> Seq.where (contains filter)
-    |> Seq.iter (printfn " • %s")
-
-let listDisabled (filter : string) =
-    Mod.all
-    |> Map.values
-    |> Seq.where Mod.isDisabled
-    |> Seq.map Mod.getTitle
-    |> Seq.where (contains filter)
-    |> Seq.iter (printfn " • %s")
 
 let runXcom launchArguments =
     printfn "Launching XCOM 2 with arguments: %s\nExecutable used: %s" launchArguments Paths.ExecutableFile

@@ -37,16 +37,7 @@ let loadMod path  =
       Tags            = matches |> tryGetCapturedSubstring "tags" |> Option.map trim
       ContentImage    = matches |> tryGetCapturedSubstring "contentImage" |> Option.map trim }
 
-let getTitle m = m.Title
-
-let enabled =
-    Paths.ModOptionsFile
-    |> File.ReadAllLines
-    |> Array.where (startsWith "ActiveMods=")
-    |> Array.map (replace "ActiveMods=" String.Empty)
-
-let isEnabled m = enabled |> Array.contains m.Name
-let isDisabled m = isEnabled m |> not
+let getTitle { Title = title } = title
 
 let all =
     Paths.WorkshopContentFolder
@@ -55,26 +46,41 @@ let all =
     |> Seq.map (fun x -> x.Name, x)
     |> Map.ofSeq
 
-let disable m =
+let enabled =
     Paths.ModOptionsFile
     |> File.ReadAllLines
-    |> fun lines -> lines |> Array.tryFindIndex (startsWith $"ActiveMods={m.Name}"), lines
+    |> Array.where (startsWith "ActiveMods=")
+    |> Array.map (replace "ActiveMods=" String.Empty)
+
+let disabled =
+    all
+    |> Map.keys
+    |> Seq.except enabled
+    |> Array.ofSeq
+
+let isEnabled { Name = name } = enabled |> Array.contains name
+let isDisabled { Name = name } = disabled |> Array.contains name
+
+let disable { Title = title ; Name = name } =
+    Paths.ModOptionsFile
+    |> File.ReadAllLines
+    |> fun lines -> lines |> Array.tryFindIndex (startsWith $"ActiveMods={name}"), lines
     |> function
     | Some index, lines ->
         Array.removeAt index lines |> writeAllLines Paths.ModOptionsFile
-        Ok $"{m.Title} disabled."
-    | _ -> Error $"{m.Title} is already disabled."
+        Ok $"{title} disabled."
+    | _ -> Error $"{title} is already disabled."
 
-let enable m =
-    match all |> Map.tryFind m.Name with
-    | None -> Error $"No such mod as {m.Title} is downloaded."
-    | Some m when isEnabled m -> Error $"{m.Title} is already enabled."
+let enable  { Title = title ; Name = name } =
+    match all |> Map.tryFind name with
+    | None -> Error $"No such mod as {title} is downloaded."
+    | Some m when isEnabled m -> Error $"{title} is already enabled."
     | _ ->
         Paths.ModOptionsFile
         |> File.ReadAllLines
         |> fun lines -> lines, lines |> Array.tryFindIndexBack (startsWith "ActiveMods=") |> function | Some i -> i + 1 | None -> 1
         |> fun (lines, insertIndex) ->
             lines
-            |> Array.insertAt insertIndex $"ActiveMods={m.Name}"
+            |> Array.insertAt insertIndex $"ActiveMods={name}"
             |> writeAllLines Paths.ModOptionsFile
-            Ok $"{m.Title} enabled."
+            Ok $"{title} enabled."
