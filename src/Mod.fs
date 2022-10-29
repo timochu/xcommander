@@ -38,7 +38,7 @@ let loadMod path  =
       Tags            = matches |> tryGetCapturedSubstring "tags" |> Option.map trim
       ContentImage    = matches |> tryGetCapturedSubstring "contentImage" |> Option.map trim }
 
-let all =
+let downloaded =
     Paths.WorkshopContentFolder
     |> enumerateFiles "*.XComMod" SearchOption.AllDirectories
     |> Seq.map loadMod
@@ -50,7 +50,7 @@ let enabled =
     |> Seq.map (replace "ActiveMods=" String.Empty)
 
 let isEnabled { Name = name } = enabled |> Seq.contains name
-let isDisabled m = isEnabled m |> not
+let isDisabled { Name = name } = enabled |> Seq.contains name |> not
 
 let disable { Title = title ; Name = name } =
     Paths.ModOptionsFile
@@ -63,7 +63,7 @@ let disable { Title = title ; Name = name } =
     | _ -> printfn $"{title} is already disabled."
 
 let enable  { Title = title ; Name = name } =
-    match all |> Seq.tryFind (fun m -> m.Name = name) with
+    match downloaded |> Seq.tryFind (fun m -> m.Name = name) with
     | None -> printfn $"No such mod as {title} is downloaded."
     | Some m when isEnabled m -> printfn $"{title} is already enabled."
     | _ ->
