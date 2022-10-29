@@ -1,5 +1,4 @@
 module xcommander.Commands
-open Utility.Result
 open Utility.Process
 open Configuration
 open Utility.String
@@ -8,31 +7,27 @@ let enableAllMods () =
     Mod.all
     |> Map.values
     |> Seq.where Mod.isDisabled
-    |> Seq.map Mod.enable
-    |> Seq.iter print
+    |> Seq.iter Mod.enable
 
 let disableAllMods () =
     Mod.all
     |> Map.values
     |> Seq.where Mod.isEnabled
-    |> Seq.map Mod.disable
-    |> Seq.iter print
+    |> Seq.iter Mod.disable
 
 let enableMod name =
     Mod.all
     |> Map.tryFind name
     |> function
         | Some name -> Mod.enable name
-        | None -> Error $"No such mod as {name} is downloaded."
-    |> print
+        | None -> printfn $"No such mod as {name} is downloaded."
 
 let disableMod name =
     Mod.all
     |> Map.tryFind name
     |> function
         | Some name -> Mod.disable name
-        | None -> Error $"No such mod as {name} is downloaded."
-    |> print
+        | None -> printfn $"No such mod as {name} is downloaded."
 
 let listMods filter enabledOnly disabledOnly =
     Mod.all

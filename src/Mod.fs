@@ -60,13 +60,13 @@ let disable { Title = title ; Name = name } =
     |> function
     | Some index, lines ->
         Array.removeAt index lines |> writeAllLines Paths.ModOptionsFile
-        Ok $"{title} disabled."
-    | _ -> Error $"{title} is already disabled."
+        printfn $"{title} disabled."
+    | _ -> printfn $"{title} is already disabled."
 
 let enable  { Title = title ; Name = name } =
     match all |> Map.tryFind name with
-    | None -> Error $"No such mod as {title} is downloaded."
-    | Some m when isEnabled m -> Error $"{title} is already enabled."
+    | None -> printfn $"No such mod as {title} is downloaded."
+    | Some m when isEnabled m -> printfn $"{title} is already enabled."
     | _ ->
         Paths.ModOptionsFile
         |> File.ReadAllLines
@@ -75,4 +75,4 @@ let enable  { Title = title ; Name = name } =
             lines
             |> Array.insertAt insertIndex $"ActiveMods={name}"
             |> writeAllLines Paths.ModOptionsFile
-            Ok $"{title} enabled."
+            printfn $"{title} enabled."

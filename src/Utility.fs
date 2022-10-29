@@ -31,7 +31,3 @@ module Regex =
 
     let tryGetCapturedSubstring capturingGroupName (matches : Match seq) =
         matches |> Seq.collect (fun m -> m.Groups) |> Seq.tryFind (fun g -> g.Success && g.Name = capturingGroupName) |> Option.map (fun g -> g.Value)
-
-
-module Result =
-    let print = function Ok msg | Error msg -> msg |> printfn "   %s"
