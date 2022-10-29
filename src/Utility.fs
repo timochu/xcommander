@@ -16,7 +16,11 @@ module Process =
         p.Start() |> ignore
 
 module File =
-    let writeAllLines path contents = System.IO.File.WriteAllLines (path, contents)
+    let writeAllLines path (contents : string seq) = System.IO.File.WriteAllLines (path, contents)
+
+module Directory =
+    open System.IO
+    let enumerateFiles searchPattern (searchOptions : SearchOption) path = Directory.EnumerateFiles(path, searchPattern, searchOptions)
 
 module Path =
     let join (path : string) root = System.IO.Path.Join(root, path)

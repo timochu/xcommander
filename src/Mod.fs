@@ -3,6 +3,7 @@ open System
 open System.IO
 open xcommander.Utility.Regex
 open xcommander.Utility.String
+open xcommander.Utility.Directory
 open Configuration
 open Utility.File
 
@@ -39,40 +40,38 @@ let loadMod path  =
 
 let all =
     Paths.WorkshopContentFolder
-    |> fun dir -> Directory.EnumerateFiles(dir, "*.XComMod", SearchOption.AllDirectories)
+    |> enumerateFiles "*.XComMod" SearchOption.AllDirectories
     |> Seq.map loadMod
-    |> Seq.map (fun x -> x.Name, x)
-    |> Map.ofSeq
 
 let enabled =
     Paths.ModOptionsFile
     |> File.ReadAllLines
-    |> Array.where (startsWith "ActiveMods=")
-    |> Array.map (replace "ActiveMods=" String.Empty)
+    |> Seq.where (startsWith "ActiveMods=")
+    |> Seq.map (replace "ActiveMods=" String.Empty)
 
-let isEnabled { Name = name } = enabled |> Array.contains name
+let isEnabled { Name = name } = enabled |> Seq.contains name
 let isDisabled m = isEnabled m |> not
 
 let disable { Title = title ; Name = name } =
     Paths.ModOptionsFile
     |> File.ReadAllLines
-    |> fun lines -> lines |> Array.tryFindIndex (startsWith $"ActiveMods={name}"), lines
+    |> fun lines -> lines |> Seq.tryFindIndex (startsWith $"ActiveMods={name}"), lines
     |> function
     | Some index, lines ->
-        Array.removeAt index lines |> writeAllLines Paths.ModOptionsFile
+        Seq.removeAt index lines |> writeAllLines Paths.ModOptionsFile
         printfn $"{title} disabled."
     | _ -> printfn $"{title} is already disabled."
 
 let enable  { Title = title ; Name = name } =
-    match all |> Map.tryFind name with
+    match all |> Seq.tryFind (fun m -> m.Name = name) with
     | None -> printfn $"No such mod as {title} is downloaded."
     | Some m when isEnabled m -> printfn $"{title} is already enabled."
     | _ ->
         Paths.ModOptionsFile
         |> File.ReadAllLines
-        |> fun lines -> lines, lines |> Array.tryFindIndexBack (startsWith "ActiveMods=") |> function | Some i -> i + 1 | None -> 1
+        |> fun lines -> lines, lines |> Seq.tryFindIndexBack (startsWith "ActiveMods=") |> function | Some i -> i + 1 | None -> 1
         |> fun (lines, insertIndex) ->
             lines
-            |> Array.insertAt insertIndex $"ActiveMods={name}"
+            |> Seq.insertAt insertIndex $"ActiveMods={name}"
             |> writeAllLines Paths.ModOptionsFile
             printfn $"{title} enabled."
