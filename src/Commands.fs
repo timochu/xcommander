@@ -17,14 +17,14 @@ let enableMod name =
     Mod.all
     |> Seq.tryFind (fun m -> m.Name = name)
     |> function
-        | Some name -> Mod.enable name
+        | Some m -> Mod.enable m
         | None -> printfn $"No such mod as {name} is downloaded."
 
 let disableMod name =
     Mod.all
     |> Seq.tryFind (fun m -> m.Name = name)
     |> function
-        | Some name -> Mod.disable name
+        | Some m -> Mod.disable m
         | None -> printfn $"No such mod as {name} is downloaded."
 
 let listMods filter enabledOnly disabledOnly =
