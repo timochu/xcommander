@@ -15,10 +15,8 @@ Options:
 Commands:
   list <search>    List all mods. []
   run <arguments>  Launch XCOM 2. [default: -review -noRedScreens -nostartupmovies]
-  enable-all       Enables all disabled mods.
-  disable-all      Disables all enabled mod.
-  enable <name>    Enables a specified mod.
-  disable <name>   Disables a specified mod.
+  enable <name>    Enables a specified mod. * will enable all mods.
+  disable <name>   Disables a specified mod. * will disable all mods.
 ```
 
 Icon by [Icons8](https://icons8.com).
