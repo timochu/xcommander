@@ -19,7 +19,7 @@ type Mod = {
     Tags : string option
     ContentImage : string option }
 
-let loadMod path  =
+let readModInfo path  =
     let expression = @"\r?\npublishedFileId=(?<publishedFileId>[0-9]*)|" +
                      @"\r?\nTitle=(?<title>.*)|" +
                      @"\r?\ntags=(?<tags>.*)|" +
@@ -41,7 +41,7 @@ let loadMod path  =
 let downloaded =
     Paths.WorkshopContentFolder
     |> enumerateFiles "*.XComMod" SearchOption.AllDirectories
-    |> Seq.map loadMod
+    |> Seq.map Path.GetFileNameWithoutExtension
 
 let enabled =
     Paths.ModOptionsFile
@@ -49,29 +49,44 @@ let enabled =
     |> Seq.where (startsWith "ActiveMods=")
     |> Seq.map (replace "ActiveMods=" String.Empty)
 
-let isEnabled { Name = name } = enabled |> Seq.contains name
-let isDisabled { Name = name } = enabled |> Seq.contains name |> not
+let isEnabled name = enabled |> Seq.contains name
+let isDisabled = isEnabled >> not
 
-let disable { Title = title ; Name = name } =
-    Paths.ModOptionsFile
-    |> File.ReadAllLines
-    |> fun lines -> lines |> Seq.tryFindIndex (startsWith $"ActiveMods={name}"), lines
-    |> function
-    | Some index, lines ->
-        Seq.removeAt index lines |> writeAllLines Paths.ModOptionsFile
-        printfn $"{title} disabled."
-    | _ -> printfn $"{title} is already disabled."
+let rec disable (name : string) =
+    match name, downloaded |> Seq.tryFind (fun m -> m = name) with
+    | "*", None -> downloaded |> Seq.where isEnabled |> Seq.iter disable
+    | _, None -> printfn $"No such mod as {name} is downloaded."
+    | _, Some name when isDisabled name -> printfn $"{name} is already disabled."
+    | _, Some name ->
+        Paths.ModOptionsFile
+        |> File.ReadAllLines
+        |> fun lines -> lines, lines |> Seq.findIndex (startsWith $"ActiveMods={name}")
+        |> fun (lines, index) ->
+            lines
+            |> Seq.removeAt index
+            |> writeAllLines Paths.ModOptionsFile
+            printfn $"{name} disabled."
 
-let enable  { Title = title ; Name = name } =
-    match downloaded |> Seq.tryFind (fun m -> m.Name = name) with
-    | None -> printfn $"No such mod as {title} is downloaded."
-    | Some m when isEnabled m -> printfn $"{title} is already enabled."
-    | _ ->
+let rec enable name =
+    match name, downloaded |> Seq.tryFind (fun m -> m = name) with
+    | "*", None -> downloaded |> Seq.where isDisabled |> Seq.iter enable
+    | _, None -> printfn $"No such mod as {name} is downloaded."
+    | _, Some name when isEnabled name -> printfn $"{name} is already enabled."
+    | _, Some name ->
         Paths.ModOptionsFile
         |> File.ReadAllLines
         |> fun lines -> lines, lines |> Seq.tryFindIndexBack (startsWith "ActiveMods=") |> function | Some i -> i + 1 | None -> 1
-        |> fun (lines, insertIndex) ->
+        |> fun (lines, index) ->
             lines
-            |> Seq.insertAt insertIndex $"ActiveMods={name}"
+            |> Seq.insertAt index $"ActiveMods={name}"
             |> writeAllLines Paths.ModOptionsFile
-            printfn $"{title} enabled."
+            printfn $"{name} enabled."
+
+let list filter enabledOnly disabledOnly =
+    downloaded
+    |> Seq.where (match enabledOnly, disabledOnly with
+                  | true, _ -> isEnabled
+                  | _, true -> isDisabled
+                  | _ -> (fun _ -> true))
+    |> Seq.where (fun name -> contains filter name)
+    |> Seq.iter (fun name -> printfn "%s %s" (if isEnabled name then "•" else " ") name)
