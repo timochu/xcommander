@@ -11,7 +11,7 @@ type Configuration = {
     LaunchArguments : string
 }
 
-let configurationRoot = ConfigurationBuilder().AddJsonFile("settings.json").AddCommandLine(GetCommandLineArgs()).Build();
+let configurationRoot = ConfigurationBuilder().AddJsonFile("settings.json").AddCommandLine(GetCommandLineArgs()).Build()
 let config = configurationRoot.Get<Configuration>()
 
 module Paths =
