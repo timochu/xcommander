@@ -1,29 +1,27 @@
 module xcommander.Utility
+open System
 
 module String =
     let replace oldValue (newValue : string) (str : string) = str.Replace(oldValue, newValue)
     let trim (s : string) = s.Trim()
     let startsWith (value : string) (s : string) = s.StartsWith(value)
-    let contains (value : string) (s : string) = s.Contains(value, System.StringComparison.InvariantCultureIgnoreCase)
+    let contains (value : string) (s : string) = s.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+    let endsWith (value : string) (s : string) = s.EndsWith(value, StringComparison.OrdinalIgnoreCase)
 
 module Process =
     let run filename workingDirectory arguments =
-        let p = new System.Diagnostics.Process(
-            StartInfo = new System.Diagnostics.ProcessStartInfo(
+        let p = new Diagnostics.Process(
+            StartInfo = new Diagnostics.ProcessStartInfo(
                 Arguments = arguments,
                 FileName = filename,
                 WorkingDirectory = workingDirectory))
         p.Start() |> ignore
 
 module File =
-    let writeAllLines path (contents : string seq) = System.IO.File.WriteAllLines (path, contents)
-
-module Directory =
-    open System.IO
-    let enumerateFiles searchPattern (searchOptions : SearchOption) path = Directory.EnumerateFiles(path, searchPattern, searchOptions)
+    let writeAllLines path (contents : string seq) = IO.File.WriteAllLines (path, contents)
 
 module Path =
-    let join (path : string) root = System.IO.Path.Join(root, path)
+    let join (path : string) root = IO.Path.Join(root, path)
 
 module Regex =
     open System.Text.RegularExpressions
