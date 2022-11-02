@@ -4,9 +4,9 @@ open System
 module String =
     let replace oldValue (newValue : string) (str : string) = str.Replace(oldValue, newValue)
     let trim (s : string) = s.Trim()
-    let startsWith (value : string) (s : string) = s.StartsWith(value)
-    let contains (value : string) (s : string) = s.Contains(value, StringComparison.InvariantCultureIgnoreCase)
+    let startsWith (value : string) (s : string) = s.StartsWith(value, StringComparison.OrdinalIgnoreCase)
     let endsWith (value : string) (s : string) = s.EndsWith(value, StringComparison.OrdinalIgnoreCase)
+    let contains (value : string) (s : string) = s.Contains(value, StringComparison.OrdinalIgnoreCase)
 
 module Process =
     let run filename workingDirectory arguments =
