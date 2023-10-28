@@ -33,3 +33,17 @@ module Regex =
 
     let tryGetCapturedSubstring capturingGroupName (matches : Match seq) =
         matches |> Seq.collect (fun m -> m.Groups) |> Seq.tryFind (fun g -> g.Success && g.Name = capturingGroupName) |> Option.map (fun g -> g.Value)
+
+module FileSize =
+    let humanReadableFileSize (size: int) =
+        let bytes = float size
+        let kilobyte = 1024.0
+        let megabyte = kilobyte ** 2.0
+        let gigabyte = kilobyte ** 3.0
+        let terabyte = kilobyte ** 4.0
+
+        if bytes < kilobyte then sprintf "%.0f B" bytes
+        elif bytes < megabyte then sprintf "%.2f KB" (bytes / kilobyte)
+        elif bytes < gigabyte then sprintf "%.2f MB" (bytes / megabyte)
+        elif bytes < terabyte then sprintf "%.2f GB" (bytes / gigabyte)
+        else sprintf "%.2f TB" (bytes / terabyte)

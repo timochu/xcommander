@@ -3,6 +3,7 @@ open System
 open System.IO
 open xcommander.Utility.Regex
 open xcommander.Utility.String
+open xcommander.Steam
 open Configuration
 open Utility.File
 
@@ -10,6 +11,7 @@ type Mod = {
     Path : string
     Filename : string
     Id : string
+    Id64 : uint64
     PublishedFileId : string
     Title : string
     Description : string
@@ -29,6 +31,7 @@ let readModInfo path  =
     { Path            = path
       Filename        = Path.GetFileName path
       Id              = Path.GetFileNameWithoutExtension path
+      Id64            = Path.GetFileNameWithoutExtension path |> trim |> uint64
       PublishedFileId = matches |> getCapturedSubstring "publishedFileId" |> trim
       Title           = matches |> getCapturedSubstring "title" |> trim
       Description     = matches |> getCapturedSubstring "description" |> trim
@@ -36,6 +39,12 @@ let readModInfo path  =
       RequiresXPACK   = matches |> tryGetCapturedSubstring "RequiresXPACK" |> Option.map (trim >> bool.Parse)
       Tags            = matches |> tryGetCapturedSubstring "tags" |> Option.map trim
       ContentImage    = matches |> tryGetCapturedSubstring "contentImage" |> Option.map trim }
+
+let downloadedIds =
+    Paths.WorkshopContentFolder
+    |> Directory.GetDirectories
+    |> Array.map Path.GetFileName
+    |> Array.map uint64
 
 let downloaded =
     Paths.WorkshopContentFolder
@@ -94,3 +103,20 @@ let list filter enabledOnly disabledOnly =
                   | _ -> true)
     |> Array.where (contains filter)
     |> Array.iter (fun id -> printfn "%s %s" (if isEnabled id then "•" else " ") id)
+
+
+
+let details () =
+    downloadedIds
+    |> fetchModDetails |> Async.RunSynchronously
+    |> function
+        | Ok mods ->
+            mods
+            |> List.iter (fun m ->
+                printfn "MOD: %s\nCreated: %A\nUpdated: %A\nSize: %s\n"
+                    m.m_rgchTitle
+                    (DateTimeOffset.FromUnixTimeSeconds(int64 m.m_rtimeCreated))
+                    (DateTimeOffset.FromUnixTimeSeconds(int64 m.m_rtimeUpdated))
+                    (m.m_nFileSize |> Utility.FileSize.humanReadableFileSize)
+                )
+        | Error error -> failwith error

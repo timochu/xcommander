@@ -1,10 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Win32Resource>icon/icon.res</Win32Resource>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="src/Steamworks.fs" />
     <Compile Include="src/Utility.fs" />
     <Compile Include="src/Configuration.fs" />
     <Compile Include="src/Mod.fs" />
@@ -12,6 +13,11 @@
     <Compile Include="src/Program.fs" />
     <None Include="settings.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Include="README.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="steam_api64.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="steam_appid.txt" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Reference Include="Steamworks.NET">
+      <HintPath>Steamworks.NET.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />

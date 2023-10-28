@@ -3,8 +3,10 @@ open System.CommandLine
 open xcommander.Commands
 open xcommander.Configuration
 open xcommander
+open xcommander.Steam
 
 let root    = RootCommand "XCOM 2 Mod Manager."
+let details = Command("details", "Detailed list of all mods.")
 let list    = Command("list", "List all mods.")
 let enable  = Command("enable", "Enables a specified mod.")
 let disable = Command("disable", "Disables a specified mod.")
@@ -18,6 +20,8 @@ module Argument =
 module Option =
     let enabled  = Option<bool>("--enabled", "Only show enabled.")
     let disabled = Option<bool>("--disabled", "Only show disabled.")
+
+details.SetHandler (Mod.details)
 
 list.AddArgument Argument.search
 list.AddOption Option.enabled
@@ -33,10 +37,33 @@ disable.SetHandler (Mod.disable, Argument.id)
 run.AddArgument Argument.arguments
 run.SetHandler (runXcom, Argument.arguments)
 
-[ list
+[ details
+  list
   run
   enable
   disable ]
 |> Seq.iter root.AddCommand
 
 Environment.GetCommandLineArgs() |> Array.skip 1 |> root.Invoke |> ignore
+
+// let mods = [
+//     667104300UL
+//     934236622UL
+//     1122974240UL
+//     1124284135UL
+//     1127539414UL
+//     1128263618UL
+//     1134256495UL
+//     1149493976UL
+//     1289686596UL
+//     1384631824UL
+//     2534737016UL
+//     2550561145UL
+//     2567229533UL
+//     2663990965UL]
+// let foo = fetchModDetails(mods) |> Async.RunSynchronously
+// match foo with
+// | Ok details -> details |> List.iter (fun details -> printfn "Mod details: %A" details.m_rgchTitle)
+// | Error error -> printfn "%s" error
+
+
